@@ -1,0 +1,17 @@
+[project]
+name = "perturbational-validity-simulation"
+version = "0.1.0"
+description = "Bistable-system simulation of perturbational validity for transferred dynamical models"
+readme = "README.md"
+requires-python = ">=3.13"
+license = "BSD-3-Clause"
+license-files = ["LICENSE"]
+authors = [
+    { name = "José C. García Alanis" },
+    { name = "Hamidreza Jamalabadi" },
+]
+dependencies = [
+    "matplotlib>=3.11.1",
+    "numpy>=2.5.1",
+    "pillow>=11.0.0",
+]

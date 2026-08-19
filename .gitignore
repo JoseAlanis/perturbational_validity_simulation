@@ -1,0 +1,17 @@
+# Simulation and figure output
+results/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.ruff_cache/
+.pytest_cache/
+
+# Local sync helper, not part of the published repo
+/sync.sh
+
+# Local OS and editor artifacts
+.DS_Store
+.idea/
+.vscode/
