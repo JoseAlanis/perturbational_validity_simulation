@@ -264,7 +264,7 @@ def main(argv=None) -> int:
     if args.stage in ("all", "simulate"):
         bundle = simulate(cfg, net, opt, output_dir, args.workers)
     else:
-        bundle = load_results(output_dir / RESULTS_FILENAME)
+        bundle = load_results(output_dir / RESULTS_FILENAME, expected_cfg=cfg)
 
     if args.stage in ("all", "figures"):
         draw_figures(cfg, bundle, output_dir)

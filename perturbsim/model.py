@@ -245,15 +245,19 @@ def adapt_full_model(
 
 
 def fit_cubic_scratch_model(cal: Dataset) -> np.ndarray:
-    """Fit a ridge-regularised cubic drift model to one participant."""
-    xs = np.asarray(cal.xs).ravel()
-    us = np.asarray(cal.us).ravel()
-    design = np.column_stack([np.ones(xs.size), xs, xs**2, xs**3, us])
+    """Fit a ridge-regularised cubic drift in physical coordinates.
+
+    Raw values keep this genuinely from-scratch: regularisation does not depend
+    on scaling estimated from population data.
+    """
+    x = np.asarray(cal.x).ravel()
+    u = np.asarray(cal.u).ravel()
+    design = np.column_stack([np.ones(x.size), x, x**2, x**3, u])
 
     lam = 1e-4
     penalty = np.diag([0.0, 1.0, 1.0, 1.0, 1.0])
     return np.linalg.solve(
-        design.T @ design + lam * penalty, design.T @ np.asarray(cal.ys).ravel()
+        design.T @ design + lam * penalty, design.T @ np.asarray(cal.y).ravel()
     )
 
 
@@ -276,13 +280,15 @@ def _shared_predict_standardised(
     return y_hat.ravel()
 
 
-def cubic_drift_fn(beta: np.ndarray, scale: Scale) -> DriftFn:
-    """Unscaled drift callable for the cubic baseline."""
+def cubic_drift_fn(beta: np.ndarray) -> DriftFn:
+    """Physical-coordinate drift callable for the cubic baseline.
+
+    Takes no scaling argument: the baseline is fitted in physical coordinates, so
+    population standardisation cannot enter it even by accident.
+    """
 
     def drift(x, u):
-        xs = (np.asarray(x).ravel() - scale.x_mean) / scale.x_std
-        us = (np.asarray(u).ravel() - scale.u_mean) / scale.u_std
-        return _cubic_predict_standardised(beta, xs, us) * scale.y_std + scale.y_mean
+        return _cubic_predict_standardised(beta, np.asarray(x), np.asarray(u))
 
     return drift
 

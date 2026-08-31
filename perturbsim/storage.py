@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+from dataclasses import asdict
 from pathlib import Path
 
 import numpy as np
@@ -76,6 +78,7 @@ def save_results(
     payload["populationPassiveX"] = passive_x
     payload["populationPerturbX"] = perturb_x
     payload["populationPerturbU"] = perturb_u
+    payload["configJson"] = np.asarray(json.dumps(asdict(cfg), sort_keys=True))
 
     for key in _EXAMPLE_PLAIN:
         payload[f"example__{key}"] = np.asarray(example[key])
@@ -93,9 +96,18 @@ def save_results(
     return path
 
 
-def load_results(path: Path) -> dict:
-    """Read a results bundle."""
+def load_results(path: Path, expected_cfg: Config | None = None) -> dict:
+    """Read a results bundle and optionally verify its simulation settings."""
     with np.load(Path(path)) as data:
+        if "configJson" not in data:
+            raise ValueError(
+                "results cache predates configuration metadata; rerun simulation"
+            )
+        config_json = str(data["configJson"])
+        if expected_cfg is not None:
+            expected = json.dumps(asdict(expected_cfg), sort_keys=True)
+            if config_json != expected:
+                raise ValueError("results cache configuration does not match this run")
         results = {name: data[f"results__{name}"] for name in METRIC_NAMES}
 
         example: dict = {}

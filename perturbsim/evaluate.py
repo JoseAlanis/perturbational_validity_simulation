@@ -218,7 +218,7 @@ def evaluate_one_subject(
         cubic_beta = fit_cubic_scratch_model(cal)
 
         drift_fns = [
-            cubic_drift_fn(cubic_beta, scale),
+            cubic_drift_fn(cubic_beta),
             shared_drift_fn(passive_model, e_passive, scale),
             shared_drift_fn(perturb_model, e_perturb, scale),
         ]
@@ -230,6 +230,7 @@ def evaluate_one_subject(
 
         pred_curves = [
             transition_curve_deterministic(f, cfg, initial_state, feat.saddle_x)
+            if feat.is_bistable else np.full(cfg.test_amplitude_grid.size, np.nan)
             for f, feat in zip(drift_fns, estimated_features)
         ]
 
@@ -256,7 +257,7 @@ def evaluate_one_subject(
             metrics["transitionCorrect"][ci, m] = float(
                 true_transition == pred_transition
             )
-            metrics["amplitudeCurveRMSE"][ci, m] = np.sqrt(
+            metrics["amplitudeCurveRMSEModelSaddle"][ci, m] = np.sqrt(
                 np.mean((pred_curves[m] - true_curve) ** 2)
             )
 
@@ -306,16 +307,24 @@ def evaluate_one_subject(
             )
 
             # 4) Intervention outcome: stochastic dose--transition curve.
+            if estimated_features[m].is_bistable:
+                model_relative_curve = transition_probability_curve(
+                    drift_fn, cfg, initial_state, estimated_features[m].saddle_x,
+                    p.sigma, cfg.distribution_replicates, 61000 + subject_index,
+                )
+                metrics["transitionProbabilityRMSEModelSaddle"][ci, m] = np.sqrt(
+                    np.mean((model_relative_curve - true_prob_curve) ** 2)
+                )
             model_prob_curve = transition_probability_curve(
                 drift_fn,
                 cfg,
                 initial_state,
-                estimated_features[m].saddle_x,
+                true_features.saddle_x,
                 p.sigma,
                 cfg.distribution_replicates,
                 61000 + subject_index,  # shared innovations with the truth
             )
-            metrics["transitionProbabilityRMSE"][ci, m] = np.sqrt(
+            metrics["transitionProbabilityRMSECommonSaddle"][ci, m] = np.sqrt(
                 np.mean((model_prob_curve - true_prob_curve) ** 2)
             )
 
@@ -419,8 +428,18 @@ def summarise_results(results: dict, cfg: Config) -> dict:
     summary = {}
     for name in METRIC_NAMES:
         values = results[name]  # (n_subjects, n_calibration_sizes, n_models)
+        counts = np.sum(np.isfinite(values), axis=0)
+        means = np.divide(
+            np.nansum(values, axis=0), counts,
+            out=np.full(values.shape[1:], np.nan), where=counts > 0,
+        )
+        squared = np.nansum((values - means[None, :, :]) ** 2, axis=0)
+        sem = np.sqrt(np.divide(
+            squared, counts * (counts - 1),
+            out=np.full_like(squared, np.nan), where=counts > 1,
+        ))
         summary[name] = {
-            "mean": np.nanmean(values, axis=0),
-            "sem": np.nanstd(values, axis=0, ddof=1) / np.sqrt(cfg.test_subjects),
+            "mean": means,
+            "sem": sem,
         }
     return summary

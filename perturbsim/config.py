@@ -165,10 +165,11 @@ METRIC_NAMES: tuple[str, ...] = (
     "barrierError",
     "attractorError",
     "transitionCorrect",
-    "amplitudeCurveRMSE",
+    "amplitudeCurveRMSEModelSaddle",
     "flowRMSE",
     "invariantJS",
     "responseJS",
-    "transitionProbabilityRMSE",
+    "transitionProbabilityRMSEModelSaddle",
+    "transitionProbabilityRMSECommonSaddle",
     "maxAbsState",
 )

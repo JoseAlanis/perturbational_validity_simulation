@@ -234,9 +234,9 @@ def test_full_adaptation_updates_a_copy() -> None:
 
 
 def test_cubic_baseline_recovers_the_true_coefficients() -> None:
-    """With unit standardisation the cubic fit should return the true parameters."""
+    """The scratch fit must be independent of population standardisation."""
     p = SubjectParams(a=1.0, c=1.05, d=0.1, b=1.2, sigma=0.14)
-    scale = Scale(0.0, 1.0, 0.0, 1.0, 0.0, 1.0)
+    scale = Scale(4.0, 2.5, -3.0, 0.4, 8.0, 3.0)
 
     rng = np.random.default_rng(11)
     x = rng.uniform(-1.8, 1.8, 500)
@@ -316,14 +316,16 @@ def test_sampled_population_is_bistable() -> None:
         "predicate accepted a single-well parameter set",
     )
 
-    minima = landscape_features(
+    features = landscape_features(
         cfg.x_grid, true_potential(cfg.x_grid, monostable)
-    ).minima_x
+    )
     check(
         "the rejected corner really has one well",
-        minima.size == 1,
-        f"found {minima.size} minima",
+        features.minima_x.size == 1,
+        f"found {features.minima_x.size} minima",
     )
+    check("a one-well landscape has no fabricated saddle",
+          not features.is_bistable and np.isnan(features.saddle_x))
 
 
 def main() -> int:

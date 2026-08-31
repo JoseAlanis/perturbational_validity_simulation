@@ -211,7 +211,7 @@ def run_condition(
                 scale,
             )
             beta = fit_cubic_scratch_model(cal)
-            drift_fns = {"scratch": cubic_drift_fn(beta, scale)}
+            drift_fns = {"scratch": cubic_drift_fn(beta)}
             for regime, model in models.items():
                 embedding = adapt_embedding(model, cal, opt)
                 label = f"{regime}_frozen" if regime == "passive" else regime

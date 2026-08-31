@@ -410,9 +410,10 @@ def make_main_figure(
         ax.plot(time, mu, color=color, lw=lw,
                 alpha=1.0 if color == palette.ground_truth else SERIES_ALPHA)
 
-    ax.axvline(cfg.test_pulse_start * cfg.dt, ls=":", color=palette.pulse_shade)
+    pulse_window = cfg.pulse_window(cfg.test_steps)
+    ax.axvline(pulse_window.start * cfg.dt, ls=":", color=palette.pulse_shade)
     ax.axvline(
-        (cfg.test_pulse_start + cfg.test_pulse_duration) * cfg.dt,
+        pulse_window.stop * cfg.dt,
         ls=":",
         color=palette.pulse_shade,
     )
@@ -557,7 +558,7 @@ def make_metrics_figure(
         ("invariantJS", "State Occupancy", "Finite-run occupancy JS"),
         ("responseJS", "Response Spread", "Response-distribution JS"),
         (
-            "transitionProbabilityRMSE",
+            "transitionProbabilityRMSECommonSaddle",
             "Intervention Outcome",
             "Dose\u2013transition RMSE",  # en dash
         ),
@@ -686,11 +687,12 @@ def write_summary_table(cfg: Config, summary: dict, output_dir: Path) -> Path:
         ("BarrierError", "barrierError"),
         ("AttractorError", "attractorError"),
         ("TransitionAccuracy", "transitionCorrect"),
-        ("AmplitudeCurveRMSE", "amplitudeCurveRMSE"),
+        ("AmplitudeCurveRMSEModelSaddle", "amplitudeCurveRMSEModelSaddle"),
         ("FlowRMSE", "flowRMSE"),
         ("InvariantJS", "invariantJS"),
         ("ResponseJS", "responseJS"),
-        ("TransitionProbabilityRMSE", "transitionProbabilityRMSE"),
+        ("TransitionProbabilityRMSEModelSaddle", "transitionProbabilityRMSEModelSaddle"),
+        ("TransitionProbabilityRMSECommonSaddle", "transitionProbabilityRMSECommonSaddle"),
         ("MaxAbsState", "maxAbsState"),
     ]
 

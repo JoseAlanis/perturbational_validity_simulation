@@ -39,6 +39,11 @@ class LandscapeFeatures:
     saddle_x: float
     barrier: float
 
+    @property
+    def is_bistable(self) -> bool:
+        """Whether two minima and an intervening saddle were recovered."""
+        return self.minima_x.size == 2 and np.isfinite(self.saddle_x)
+
 
 def landscape_features(x_grid: np.ndarray, v: np.ndarray) -> LandscapeFeatures:
     """Locate the two deepest minima and the barrier between them."""
@@ -57,7 +62,11 @@ def landscape_features(x_grid: np.ndarray, v: np.ndarray) -> LandscapeFeatures:
         between = np.arange(min_idx[0], min_idx[-1] + 1)
         saddle_idx = int(between[int(np.argmax(v[between]))])
     else:
-        saddle_idx = int(np.argmax(v))
+        return LandscapeFeatures(
+            minima_x=np.asarray(x_grid)[min_idx],
+            saddle_x=float("nan"),
+            barrier=float("nan"),
+        )
 
     return LandscapeFeatures(
         minima_x=np.asarray(x_grid)[min_idx],
