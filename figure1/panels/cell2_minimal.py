@@ -46,7 +46,7 @@ TITLE = os.environ.get(
     "TITLE",
     "Shared Dynamical Model" if POPULATION
     else "Latent Dynamics Under Perturbation")
-PANEL_LETTER = os.environ.get("PANEL_LETTER", "C" if POPULATION else "B")
+PANEL_LETTER = os.environ.get("PANEL_LETTER", "c" if POPULATION else "b")
 
 
 def driven_run(dt=0.01, gain=1.0, seed=None, start=None):

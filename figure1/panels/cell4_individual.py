@@ -47,7 +47,7 @@ def save(fig, out):
 
 
 def trajectory_panel(out_dir):
-    fig, ax = canvas("D", "Time-series accuracy")
+    fig, ax = canvas("d", "Time-series accuracy")
     dt = 0.01
     time = np.arange(int(c4.DURATION / dt)) * dt
     truth, _ = c4.run(False, 0.0, seed=3)
@@ -64,7 +64,7 @@ def trajectory_panel(out_dir):
 
 
 def structure_panel(out_dir):
-    fig, ax = canvas("E", "Dynamical-structure similarity")
+    fig, ax = canvas("e", "Dynamical-structure similarity")
     grid = np.linspace(-1.9, 1.9, 400)
     ax.plot(grid, c4.potential(grid, False), color=c4.TRUTH, lw=1.6)
     ax.plot(grid, c4.potential(grid, True), color=c4.MODEL, lw=1.6,
@@ -88,7 +88,7 @@ def structure_panel(out_dir):
 
 
 def response_panel(out_dir):
-    fig, ax = canvas("F", "Perturbational-response similarity")
+    fig, ax = canvas("f", "Perturbational-response similarity")
     dt = 0.01
     time = np.arange(int(c4.DURATION / dt)) * dt
     truth, u = c4.run(False, c4.U_AMP, seed=11, n_rep=c4.N_REP)

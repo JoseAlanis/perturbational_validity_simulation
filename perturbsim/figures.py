@@ -230,7 +230,7 @@ def make_main_figure(
     ax.set_ylabel("Potential, $V(x)$")
     ax.set_xticks(STATE_TICKS)
     ax.set_xlim(*STATE_LIM)
-    panel_title(ax, "A", "Dynamical Family")
+    panel_title(ax, "a", "Dynamical Family")
 
     # B: calibration episode ------------------------------------------------
     ax = axes[0, 1]
@@ -311,7 +311,7 @@ def make_main_figure(
             ha="center", va="top", fontsize=7.5, color="#666D75",
         )
 
-    panel_title(ax, "B", "Few-Shot Calibration")
+    panel_title(ax, "b", "Few-Shot Calibration")
     calibration_legend = ax_input.legend(
         [h_state, h_samples, h_input],
         ["State", "Samples", "Input"],
@@ -353,7 +353,7 @@ def make_main_figure(
     ax.set_ylabel("Flow, $f(x,u)$")
     ax.set_xticks(STATE_TICKS)
     ax.set_xlim(*STATE_LIM)
-    panel_title(ax, "C", "Controlled Vector Fields")
+    panel_title(ax, "c", "Controlled Vector Fields")
     ax.text(
         0.50, 0.055, "passive predictions overlap",
         transform=ax.transAxes, ha="center", va="bottom",
@@ -390,7 +390,7 @@ def make_main_figure(
     ax.set_xlim(*STATE_LIM)
     ax.set_yticks(ENERGY_TICKS)
     ax.set_ylim(*ENERGY_LIM)
-    panel_title(ax, "D", "Estimated Landscapes")
+    panel_title(ax, "d", "Estimated Landscapes")
 
     # E: held-out perturbational response ------------------------------------
     ax = axes[1, 1]
@@ -422,7 +422,7 @@ def make_main_figure(
     ax.xaxis.set_major_locator(MultipleLocator(5))
     ax.set_yticks(RESPONSE_TICKS)
     ax.set_ylim(*RESPONSE_LIM)
-    panel_title(ax, "E", "Test-Pulse Response")
+    panel_title(ax, "e", "Test-Pulse Response")
 
     # F: stochastic dose-transition curve -------------------------------------
     ax = axes[1, 2]
@@ -440,7 +440,7 @@ def make_main_figure(
     ax.set_ylabel("Transition probability")
     ax.set_ylim(-0.03, 1.03)
     ax.xaxis.set_major_locator(MultipleLocator(0.5))
-    panel_title(ax, "F", "Intervention Outcome")
+    panel_title(ax, "f", "Intervention Outcome")
 
     method_handles = [
         Line2D([0], [0], color=palette.ground_truth, lw=2.0),
@@ -576,7 +576,7 @@ def make_metrics_figure(
         _plot_learning_curve(ax, cfg, summary[name], palette)
         ax.set_xlabel("Calibration samples")
         ax.set_ylabel(ylabel)
-        panel_title(ax, chr(ord("A") + k), group)
+        panel_title(ax, chr(ord("a") + k), group)
 
     metric_handles = [
         Line2D([0], [0], color=palette.scratch, lw=2.0, ls="--", marker="o",
@@ -628,7 +628,7 @@ def make_coverage_figure(
     ax.set_xticks(STATE_TICKS)
     ax.set_ylabel("Probability")
     fixed_yticks(ax, float(max(passive_counts.max(), perturb_counts.max())))
-    panel_title(ax, "A", "State-Space Coverage")
+    panel_title(ax, "a", "State-Space Coverage")
     coverage_handles = ax.get_legend_handles_labels()
 
     ax = axes[1]
@@ -642,7 +642,7 @@ def make_coverage_figure(
     ax.set_xticks(STATE_TICKS)
     ax.set_ylabel("Probability")
     fixed_yticks(ax, float(input_counts.max()))
-    panel_title(ax, "B", "Input-Space Coverage")
+    panel_title(ax, "b", "Input-Space Coverage")
 
     ax = axes[2]
     means = np.nanmean(coverage_stats[:, :4], axis=0)
@@ -658,7 +658,7 @@ def make_coverage_figure(
     )
     ax.set_ylabel("Fraction of candidate-pool samples")
     fixed_yticks(ax, float((means + sems).max()))
-    panel_title(ax, "C", "Candidate Calibration Pool")
+    panel_title(ax, "c", "Candidate Calibration Pool")
 
     for panel_ax in axes:
         panel_ax.tick_params(labelsize=9.0)

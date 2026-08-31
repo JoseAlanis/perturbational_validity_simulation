@@ -73,7 +73,7 @@ def make_controls(rows: list[dict], output_dir: Path) -> None:
         w_pad=6 / 72, h_pad=8 / 72, wspace=0.20, hspace=0.18
     )
     for ax, (metric, ylabel), title, letter in zip(
-        axes.ravel(), metrics, titles, "ABCD"
+        axes.ravel(), metrics, titles, "abcd"
     ):
         for model, marker, linestyle in zip(MODEL_ORDER, MARKERS, LINESTYLES):
             sizes = sorted({int(row["calibrationSize"]) for row in rows})
@@ -134,7 +134,7 @@ def make_sensitivity(rows: list[dict], output_dir: Path) -> None:
     fig.set_constrained_layout_pads(w_pad=6 / 72, h_pad=8 / 72, wspace=0.16)
     y = np.arange(len(order))
     seeds = sorted({row["trainingSeed"] for row in rows})
-    for ax, (metric, title), letter in zip(axes, metrics, "ABC"):
+    for ax, (metric, title), letter in zip(axes, metrics, "abc"):
         means, errors = [], []
         for condition in order:
             ratios = []

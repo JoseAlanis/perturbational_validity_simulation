@@ -43,7 +43,7 @@ DELTA = float(os.environ.get("DELTA", "0.65"))
 FILL = os.environ.get("FILL", "") not in ("", "0", "false")
 LIM = 2.1
 TITLE = os.environ.get("TITLE", "Unperturbed latent dynamics")
-PANEL_LETTER = os.environ.get("PANEL_LETTER", "A")
+PANEL_LETTER = os.environ.get("PANEL_LETTER", "a")
 STYLE = os.environ.get("STYLE", "boundary")   # "boundary" | "basincolor"
 #: Observation-band heading.
 SUBTITLE = os.environ.get("SUBTITLE", "Passive observations")
