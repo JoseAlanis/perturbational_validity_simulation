@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import csv
 import sys
 import time
 from concurrent.futures import ProcessPoolExecutor
@@ -21,7 +22,12 @@ from perturbsim.dynamics import (
     sample_subject_parameters,
     standardise,
 )
-from perturbsim.evaluate import N_MODELS, evaluate_one_subject, summarise_results
+from perturbsim.evaluate import (
+    N_MODELS,
+    evaluate_one_subject,
+    monte_carlo_floor,
+    summarise_results,
+)
 from perturbsim.figures import (
     apply_style,
     make_coverage_figure,
@@ -183,6 +189,22 @@ def draw_figures(cfg: Config, bundle: dict, output_dir: Path) -> None:
     )
     table = write_summary_table(cfg, summary, output_dir)
     print(f"Figures and {table.name} written to {output_dir}")
+
+    # What a perfect model scores: any non-zero value is finite-sample noise.
+    floor = monte_carlo_floor(cfg, bundle["testParams"])
+    floor_path = output_dir / "monte_carlo_floor.csv"
+    with floor_path.open("w", newline="") as handle:
+        writer = csv.writer(handle)
+        writer.writerow(["quantity", "mean", "sd"])
+        for name, (mean, sd) in floor.items():
+            writer.writerow([name, f"{mean:.6f}", f"{sd:.6f}"])
+    print(
+        f"Perfect-model floor: responseJS shared "
+        f"{floor['responseJSShared'][0]:.4f}, independent "
+        f"{floor['responseJSIndependent'][0]:.4f}; dose RMSE shared "
+        f"{floor['doseRMSEShared'][0]:.4f}, independent "
+        f"{floor['doseRMSEIndependent'][0]:.4f} -> {floor_path.name}"
+    )
 
 
 def parse_args(argv=None) -> argparse.Namespace:

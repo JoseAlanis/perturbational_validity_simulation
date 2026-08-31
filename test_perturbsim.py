@@ -15,6 +15,8 @@ from perturbsim.dynamics import (
     Dataset,
     Scale,
     SubjectParams,
+    is_bistable,
+    sample_subject_parameters,
     generate_population_dataset_regime,
     initial_state_from_params,
     rollout,
@@ -296,11 +298,40 @@ def test_strong_pulse_causes_a_transition() -> None:
     check("the held-out pulse drives a transition", basin_transition(strong, 0.0))
 
 
+def test_sampled_population_is_bistable() -> None:
+    """Every drawn participant has two wells; the known bad corner is rejected."""
+    cfg = Config()
+    params = sample_subject_parameters(2000, cfg, np.random.default_rng(7))
+    check(
+        "every sampled participant is bistable",
+        all(is_bistable(p) for p in params),
+        f"{sum(not is_bistable(p) for p in params)} of {len(params)} monostable",
+    )
+
+    # The draw that the shipped seeds used to produce: 27 d^2 = 2.02 > 4 c^3 = 1.84.
+    monostable = SubjectParams(a=1.0, c=0.772, d=0.274, b=1.0, sigma=0.14)
+    check(
+        "the known monostable corner is rejected",
+        not is_bistable(monostable),
+        "predicate accepted a single-well parameter set",
+    )
+
+    minima = landscape_features(
+        cfg.x_grid, true_potential(cfg.x_grid, monostable)
+    ).minima_x
+    check(
+        "the rejected corner really has one well",
+        minima.size == 1,
+        f"found {minima.size} minima",
+    )
+
+
 def main() -> int:
     for test in (
         test_potential_matches_drift,
         test_cumulative_trapezoid,
         test_landscape_features,
+        test_sampled_population_is_bistable,
         test_matched_attractor_error,
         test_divergences,
         test_percentile_convention,

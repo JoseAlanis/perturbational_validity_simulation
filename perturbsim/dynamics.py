@@ -47,20 +47,39 @@ def _uniform_sample(rng: np.random.Generator, span: tuple[float, float]) -> floa
     return lo + rng.random() * (hi - lo)
 
 
+def is_bistable(p: SubjectParams) -> bool:
+    """Whether the unforced potential has two wells.
+
+    ``V'(x) = a x^3 - c x - d`` has three real roots, and therefore two minima
+    separated by a barrier, exactly when ``27 a d^2 < 4 c^3``. Outside that
+    region the asymmetry ``d`` erases one well and the system is monostable, so
+    basin-transition metrics no longer measure a switch between two states.
+    """
+    return 27.0 * p.a * p.d**2 < 4.0 * p.c**3
+
+
 def sample_subject_parameters(
     n: int, cfg: Config, rng: np.random.Generator
 ) -> list[SubjectParams]:
-    """Draw ``n`` participants from the population family."""
-    return [
-        SubjectParams(
+    """Draw ``n`` bistable participants from the population family.
+
+    The declared ranges admit a corner (large ``|d|``, small ``c``) where the
+    potential has a single well; about 0.6% of draws land there. Those draws are
+    rejected and redrawn, so the sampled family is bistable by construction
+    without narrowing the documented ranges.
+    """
+    params = []
+    while len(params) < n:
+        candidate = SubjectParams(
             a=_uniform_sample(rng, cfg.a_range),
             c=_uniform_sample(rng, cfg.c_range),
             d=_uniform_sample(rng, cfg.d_range),
             b=_uniform_sample(rng, cfg.b_range),
             sigma=_uniform_sample(rng, cfg.sigma_range),
         )
-        for _ in range(n)
-    ]
+        if is_bistable(candidate):
+            params.append(candidate)
+    return params
 
 
 def make_random_pulse_input(

@@ -24,6 +24,7 @@ from .metrics import (
     basin_transition,
     count_basin_transitions,
     empirical_probability,
+    js_divergence,
     kl_divergence,
     landscape_features,
     matched_attractor_error,
@@ -153,6 +154,19 @@ def evaluate_one_subject(
         32000 + subject_index,
     )
 
+    # The reference dose--transition curve does not depend on the calibration
+    # size, so it is simulated once. Re-drawing it per calibration size would
+    # make part of every learning curve Monte-Carlo jitter in the reference.
+    true_prob_curve = transition_probability_curve(
+        truth_drift,
+        cfg,
+        initial_state,
+        true_features.saddle_x,
+        p.sigma,
+        cfg.distribution_replicates,
+        61000 + subject_index,
+    )
+
     # --- Calibration-set composition -----------------------------------------
     coverage[0] = np.mean(all_x < true_features.saddle_x - 0.15)
     coverage[1] = np.mean(np.abs(all_x - true_features.saddle_x) <= 0.15)
@@ -219,17 +233,6 @@ def evaluate_one_subject(
             for f, feat in zip(drift_fns, estimated_features)
         ]
 
-        # Depends on the calibration size only through the seed.
-        true_prob_curve = transition_probability_curve(
-            truth_drift,
-            cfg,
-            initial_state,
-            true_features.saddle_x,
-            p.sigma,
-            cfg.distribution_replicates,
-            61000 + 1000 * subject_index + 100 * (ci + 1),
-        )
-
         model_invariants, model_responses, model_prob_curves = [], [], []
 
         for m, drift_fn in enumerate(drift_fns):
@@ -273,9 +276,9 @@ def evaluate_one_subject(
                 initial_state,
                 cfg.distribution_replicates,
                 p.sigma,
-                41000 + 1000 * subject_index + 100 * (ci + 1) + (m + 1),
+                31000 + subject_index,  # shared innovations with the truth
             )
-            metrics["invariantKL"][ci, m] = kl_divergence(
+            metrics["invariantJS"][ci, m] = js_divergence(
                 true_invariant_prob,
                 empirical_probability(
                     model_invariant[cfg.invariant_burn_in :, :],
@@ -292,7 +295,7 @@ def evaluate_one_subject(
                 initial_state,
                 cfg.distribution_replicates,
                 p.sigma,
-                51000 + 1000 * subject_index + 100 * (ci + 1) + (m + 1),
+                32000 + subject_index,  # shared innovations with the truth
             )
             metrics["responseJS"][ci, m] = mean_response_js_divergence(
                 true_response_ensemble,
@@ -310,10 +313,22 @@ def evaluate_one_subject(
                 estimated_features[m].saddle_x,
                 p.sigma,
                 cfg.distribution_replicates,
-                71000 + 1000 * subject_index + 100 * (ci + 1) + (m + 1),
+                61000 + subject_index,  # shared innovations with the truth
             )
             metrics["transitionProbabilityRMSE"][ci, m] = np.sqrt(
                 np.mean((model_prob_curve - true_prob_curve) ** 2)
+            )
+
+            # Diagnostic: how close this model came to the imposed state
+            # boundary. Rollouts and ensembles are clipped at cfg.state_clip,
+            # so a value at the clip means the boundary shaped the result.
+            metrics["maxAbsState"][ci, m] = float(
+                max(
+                    np.max(np.abs(pred_passive[m])),
+                    np.max(np.abs(pred_perturb[m])),
+                    np.max(np.abs(model_response)),
+                    np.max(np.abs(model_invariant)),
+                )
             )
 
             if keep_example and ci == cfg.example_calibration_index:
@@ -353,6 +368,50 @@ def evaluate_one_subject(
             }
 
     return metrics, coverage, example
+
+
+def monte_carlo_floor(
+    cfg: Config, params: list[SubjectParams], n_subjects: int = 8
+) -> dict:
+    """Scores a perfect model attains on the stochastic metrics.
+
+    Both sides use the true drift, so any non-zero value is finite-sample noise
+    rather than model error. ``shared`` repeats the truth with the innovations
+    the evaluation actually uses; ``independent`` draws fresh innovations and so
+    measures what those metrics would report for a perfect model if truth and
+    model were simulated separately.
+    """
+    out = {k: [] for k in ("responseJSShared", "responseJSIndependent",
+                           "doseRMSEShared", "doseRMSEIndependent")}
+    u = cfg.pulse_input(cfg.test_pulse_amplitude)
+
+    for si, p in enumerate(params[:n_subjects]):
+        truth = true_drift_fn(p)
+        x0 = initial_state_from_params(p)
+        v = true_potential(cfg.x_grid, p)
+        saddle = landscape_features(cfg.x_grid, v - v.min()).saddle_x
+
+        reference = simulate_ensemble(truth, u, cfg, x0, cfg.distribution_replicates,
+                                     p.sigma, 32000 + si)
+        for tag, seed in (("Shared", 32000 + si), ("Independent", 99000 + si)):
+            repeat = simulate_ensemble(truth, u, cfg, x0, cfg.distribution_replicates,
+                                       p.sigma, seed)
+            out[f"responseJS{tag}"].append(
+                mean_response_js_divergence(reference, repeat, cfg.density_edges,
+                                            cfg.response_eval_stride,
+                                            cfg.density_pseudo_count)
+            )
+
+        ref_curve = transition_probability_curve(
+            truth, cfg, x0, saddle, p.sigma, cfg.distribution_replicates, 61000 + si)
+        for tag, seed in (("Shared", 61000 + si), ("Independent", 88000 + si)):
+            curve = transition_probability_curve(
+                truth, cfg, x0, saddle, p.sigma, cfg.distribution_replicates, seed)
+            out[f"doseRMSE{tag}"].append(
+                float(np.sqrt(np.mean((np.asarray(ref_curve) - np.asarray(curve)) ** 2)))
+            )
+
+    return {k: (float(np.mean(v)), float(np.std(v))) for k, v in out.items()}
 
 
 def summarise_results(results: dict, cfg: Config) -> dict:

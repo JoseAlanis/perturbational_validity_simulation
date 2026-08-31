@@ -167,7 +167,8 @@ METRIC_NAMES: tuple[str, ...] = (
     "transitionCorrect",
     "amplitudeCurveRMSE",
     "flowRMSE",
-    "invariantKL",
+    "invariantJS",
     "responseJS",
     "transitionProbabilityRMSE",
+    "maxAbsState",
 )

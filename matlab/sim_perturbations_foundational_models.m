@@ -4,7 +4,7 @@
 % Saves simulation results and figures to ./results/matlab/.
 
 clear; close all; clc;
-fprintf('Running publication script v2 (TIFF compatibility fix)\n');
+fprintf('Running perturbational foundation-model simulation\n');
 
 %% Reproducibility and output
 cfg.seed = 11;

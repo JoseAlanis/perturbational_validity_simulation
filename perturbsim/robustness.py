@@ -95,7 +95,7 @@ def _response_js(
     )
     model_ensemble = simulate_ensemble(
         model_fn, u, cfg, initial, cfg.distribution_replicates, p.sigma,
-        seed_tag + 20_000 * cfg.seed + subject_index,
+        seed_tag + 10_000 * cfg.seed + subject_index,  # shared innovations
     )
     return mean_response_js_divergence(
         true_ensemble, model_ensemble, cfg.density_edges,
@@ -114,7 +114,7 @@ def _transition_probability_error(
     )
     model = simulate_ensemble(
         model_fn, u, cfg, initial, cfg.distribution_replicates, p.sigma,
-        seed_tag + 40_000 * cfg.seed + subject_index,
+        seed_tag + 30_000 * cfg.seed + subject_index,  # shared innovations
     )
     true_v = true_potential(cfg.x_grid, p)
     saddle = landscape_features(cfg.x_grid, true_v).saddle_x

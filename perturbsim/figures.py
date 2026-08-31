@@ -201,7 +201,7 @@ def make_main_figure(
     palette: Palette,
     output_dir: Path,
 ) -> None:
-    """Figure 1: mechanistic validation in a single held-out system."""
+    """Figure 3: mechanistic validation in a single held-out system."""
     fig = plt.figure(figsize=(18.3 * CM, 15.6 * CM), constrained_layout=True)
     grid = fig.add_gridspec(2, 3, height_ratios=(1.24, 1.28))
     axes = np.empty((2, 3), dtype=object)
@@ -550,11 +550,11 @@ def _plot_learning_curve(ax, cfg: Config, metric: dict, palette: Palette) -> Non
 def make_metrics_figure(
     cfg: Config, summary: dict, palette: Palette, output_dir: Path
 ) -> None:
-    """Figure 2: few-shot transfer across complementary validation criteria."""
+    """Figure 4: few-shot transfer across complementary validation criteria."""
     panels = [
         ("passiveRMSE", "Trajectory Accuracy", "Passive rollout RMSE"),
         ("flowRMSE", "Controlled Flow", "Controlled flow RMSE"),
-        ("invariantKL", "State Occupancy", "Finite-run occupancy KL"),
+        ("invariantJS", "State Occupancy", "Finite-run occupancy JS"),
         ("responseJS", "Response Spread", "Response-distribution JS"),
         (
             "transitionProbabilityRMSE",
@@ -602,7 +602,7 @@ def make_coverage_figure(
     palette: Palette,
     output_dir: Path,
 ) -> None:
-    """Supplementary figure: coverage and excitation diagnostics."""
+    """Figure 2: coverage and excitation diagnostics."""
     fig, axes = plt.subplots(
         1, 3, figsize=(18.3 * CM, 8.8 * CM), constrained_layout=True
     )
@@ -688,9 +688,10 @@ def write_summary_table(cfg: Config, summary: dict, output_dir: Path) -> Path:
         ("TransitionAccuracy", "transitionCorrect"),
         ("AmplitudeCurveRMSE", "amplitudeCurveRMSE"),
         ("FlowRMSE", "flowRMSE"),
-        ("InvariantKL", "invariantKL"),
+        ("InvariantJS", "invariantJS"),
         ("ResponseJS", "responseJS"),
         ("TransitionProbabilityRMSE", "transitionProbabilityRMSE"),
+        ("MaxAbsState", "maxAbsState"),
     ]
 
     palette = Palette()
