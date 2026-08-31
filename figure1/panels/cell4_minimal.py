@@ -89,7 +89,7 @@ def main():
         "font.sans-serif": ["Arial", "Helvetica", "Liberation Sans", "DejaVu Sans"],
         "pdf.fonttype": 42,
     })
-    fig = plt.figure(figsize=(18.3 * c1.CM, 7.6 * c1.CM))
+    fig = plt.figure(figsize=(17.4 * c1.CM, 7.6 * c1.CM))
     width, y0, height = 0.235, 0.34, 0.51
     axes = [fig.add_axes([0.070 + k * 0.325, y0, width, height]) for k in range(3)]
     # Panel letters continue the sequence from cells A-C, which carry their own.

@@ -21,9 +21,12 @@ from .dynamics import (
 from .metrics import ensemble_band
 
 CM = 1 / 2.54
-FIGURE_SIZE = (18.3 * CM, 13.6 * CM)
+#: Single-column width for a large-format Springer journal. Generating at the
+#: production width means the font sizes set below are the printed font sizes.
+FIGURE_WIDTH = 17.4 * CM
+FIGURE_SIZE = (FIGURE_WIDTH, 13.6 * CM)
 #: Figure 4 is six plain panels and reads better with more height
-METRICS_FIGURE_SIZE = (18.3 * CM, 15.6 * CM)
+METRICS_FIGURE_SIZE = (FIGURE_WIDTH, 15.6 * CM)
 PANEL_BG = "#FCFDFE"
 PANEL_EDGE = "#8C949D"
 #: Opacity for overlapping pretraining series.
@@ -84,6 +87,9 @@ def export_figure(fig, output_dir: Path, base_name: str, dpi: int = 400) -> None
 
     fig.savefig(output_dir / f"{base_name}.pdf")
     fig.savefig(output_dir / f"{base_name}.png", dpi=dpi)
+    # EPS is the publisher's preferred vector format. It has no alpha channel,
+    # so overlapping series are flattened rather than blended.
+    fig.savefig(output_dir / f"{base_name}.eps")
     try:
         # LZW keeps the TIFF a tenth of the size of the uncompressed default.
         fig.savefig(
@@ -202,7 +208,7 @@ def make_main_figure(
     output_dir: Path,
 ) -> None:
     """Figure 3: mechanistic validation in a single held-out system."""
-    fig = plt.figure(figsize=(18.3 * CM, 15.6 * CM), constrained_layout=True)
+    fig = plt.figure(figsize=METRICS_FIGURE_SIZE, constrained_layout=True)
     grid = fig.add_gridspec(2, 3, height_ratios=(1.24, 1.28))
     axes = np.empty((2, 3), dtype=object)
     axes[0, 0] = fig.add_subplot(grid[0, 0])
@@ -605,7 +611,7 @@ def make_coverage_figure(
 ) -> None:
     """Figure 2: coverage and excitation diagnostics."""
     fig, axes = plt.subplots(
-        1, 3, figsize=(18.3 * CM, 8.8 * CM), constrained_layout=True
+        1, 3, figsize=(FIGURE_WIDTH, 8.8 * CM), constrained_layout=True
     )
     fig.set_constrained_layout_pads(w_pad=6 / 72, wspace=0.10)
     title_size = 10.0

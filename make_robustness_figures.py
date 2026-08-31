@@ -14,7 +14,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from perturbsim.config import Palette
-from perturbsim.figures import CM, apply_style, export_figure, panel_title
+from perturbsim.figures import (
+    CM, FIGURE_WIDTH, apply_style, export_figure, panel_title,
+)
 
 MODEL_ORDER = (
     "scratch", "passive_frozen", "passive_full", "state_coverage",
@@ -67,7 +69,7 @@ def make_controls(rows: list[dict], output_dir: Path) -> None:
         "Extrapolation Response", "Extrapolation Outcome",
     )
     fig, axes = plt.subplots(
-        2, 2, figsize=(18.3 * CM, 15.6 * CM), constrained_layout=True
+        2, 2, figsize=(FIGURE_WIDTH, 15.6 * CM), constrained_layout=True
     )
     fig.set_constrained_layout_pads(
         w_pad=6 / 72, h_pad=8 / 72, wspace=0.20, hspace=0.18
@@ -128,7 +130,7 @@ def make_sensitivity(rows: list[dict], output_dir: Path) -> None:
         ("responseJSExtrapolationMean", "Extrapolation-response\nJS ratio"),
     )
     fig, axes = plt.subplots(
-        1, 3, figsize=(18.3 * CM, 13.6 * CM), sharey=True,
+        1, 3, figsize=(FIGURE_WIDTH, 13.6 * CM), sharey=True,
         constrained_layout=True,
     )
     fig.set_constrained_layout_pads(w_pad=6 / 72, h_pad=8 / 72, wspace=0.16)

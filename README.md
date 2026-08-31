@@ -62,7 +62,7 @@ Everything is written under `results/`, which is not tracked:
 | S1 | `results/robustness/Figure_S1_robustness_controls.pdf` |
 | S2 | `results/robustness/Figure_S2_sensitivity.pdf` |
 
-Each figure is also written as PNG and TIFF. Subject-level and run-level metrics
+Each figure is also written as PNG, TIFF, and EPS. Subject-level and run-level metrics
 are written as CSV alongside them.
 
 Runtimes on 12 workers: the simulation takes about 1.5 minutes. The robustness
