@@ -19,7 +19,11 @@ _spec.loader.exec_module(c4)
 
 CM = 1 / 2.54
 FIGSIZE = (7.6, 6.8)
-AXIS_BOX = (0.17, 0.29, 0.68, 0.56)
+#: Left inset has to clear the widest y tick labels in the row (panel d's
+#: "-1.3") and still leave room for the axis label outside them, or the
+#: "z" of $z_1$ is clipped at the figure edge. The right edge stays at 0.85
+#: so d, e and f keep identical plot areas.
+AXIS_BOX = (0.215, 0.29, 0.635, 0.56)
 FAIL = "#9A4B3F"
 CAUTION = "#8A6A2F"
 
