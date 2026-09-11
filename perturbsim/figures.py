@@ -563,11 +563,8 @@ def make_metrics_figure(
         ("flowRMSE", "Controlled Flow", "Controlled flow RMSE"),
         ("invariantJS", "State Occupancy", "Finite-run occupancy JS"),
         ("responseJS", "Response Spread", "Response-distribution JS"),
-        (
-            "transitionProbabilityRMSECommonSaddle",
-            "Intervention Outcome",
-            "Dose\u2013transition RMSE",  # en dash
-        ),
+        ("transitionProbabilityRMSECommonSaddle", "Intervention Outcome",
+         "Dose-transition RMSE"),
         ("attractorError", "Attractor Geometry", "Attractor-location error"),
     ]
 
